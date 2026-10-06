@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <ArgylePackageVersion>1.0.0-beta.1</ArgylePackageVersion>
+        <ArgylePackageVersion>1.0.0</ArgylePackageVersion>
         <ContinuousIntegrationBuild Condition="'$(TF_BUILD)' == 'True'">true</ContinuousIntegrationBuild>
     </PropertyGroup>
 
