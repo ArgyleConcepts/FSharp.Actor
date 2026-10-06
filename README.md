@@ -114,7 +114,7 @@ task {
 
 ## Pull request validation
 
-[`azure-pipelines.yml`](azure-pipelines.yml) validates GitHub pull requests into `main` through Azure Pipelines in the **ArgyleConceptsLLC** Azure DevOps organization. It does not run on pushes or publish packages. To reproduce it locally, run from the repository root:
+[`FSharp.Actor PR Validation`](https://dev.azure.com/ArgyleConceptsLLC/Argyle%20Converge/_build?definitionId=38) uses [`azure-pipelines.yml`](azure-pipelines.yml) to validate GitHub pull requests into `main` through Azure Pipelines in the **ArgyleConceptsLLC** Azure DevOps organization. It does not run on pushes or publish packages. To reproduce it locally, run from the repository root:
 
 ```sh
 dotnet restore ArgyleConcepts.FSharp.Actor.slnx
@@ -130,7 +130,7 @@ bash eng/verify-packages.sh
 
 ## Releasing
 
-`ArgylePackageVersion` in [`Directory.Build.props`](Directory.Build.props) is the package version. [`azure-release.yml`](azure-release.yml) is run manually. By default it validates and retains the package and symbols as the `packages` artifact without publishing. A run on `main` with **Publish verified packages to NuGet.org** enabled pushes that artifact to NuGet.org through the shared `fsharp-minimalapi-nuget` environment and `fsharp-minimalapi-nuget-release` variable group. After publishing, tag the packaged commit with the version and create a GitHub release.
+`ArgylePackageVersion` in [`Directory.Build.props`](Directory.Build.props) is the package version. [`FSharp.Actor Release`](https://dev.azure.com/ArgyleConceptsLLC/Argyle%20Converge/_build?definitionId=39) uses [`azure-release.yml`](azure-release.yml) and is run manually. By default it validates and retains the package and symbols as the `packages` artifact without publishing. A run on `main` with **Publish verified packages to NuGet.org** enabled pushes that artifact to NuGet.org through the shared `fsharp-minimalapi-nuget` environment and `fsharp-minimalapi-nuget-release` variable group. After publishing, tag the packaged commit with the version and create a GitHub release.
 
 ## License
 
