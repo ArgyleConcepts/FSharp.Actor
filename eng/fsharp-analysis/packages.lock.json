@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "G-Research.FSharp.Analyzers": {
+        "type": "Direct",
+        "requested": "[0.25.0, )",
+        "resolved": "0.25.0",
+        "contentHash": "P+u0uXq1PRVD1Wto9j0JrZHJ8JmmSwJM6ogq6mqX849JRrqcsWmgFR3+oRSy4EmrYwtMfCSgp6D+LWe6yAtvSg=="
+      },
+      "Ionide.Analyzers": {
+        "type": "Direct",
+        "requested": "[0.19.0, )",
+        "resolved": "0.19.0",
+        "contentHash": "FBp/etThPSWhbvlM8wLxWtGYWgZ768yYjhwW83y18xZI9VBniG6kFVy4TEleyDkB7QnqfUgVepbT6ryHHFnZEA=="
+      },
+      "WoofWare.FSharpAnalyzers": {
+        "type": "Direct",
+        "requested": "[0.2.18, )",
+        "resolved": "0.2.18",
+        "contentHash": "72BMyuZ28ETLyZUGuLGyyqC8lFInAi/senaubo58QbqRREsn8K6lO6GyAU8hk45WS7r2nYrWwMHLTE8+joTSVQ=="
+      }
+    }
+  }
+}

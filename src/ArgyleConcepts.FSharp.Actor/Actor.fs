@@ -431,7 +431,10 @@ module Actor =
     /// Cancelling the supplied token aborts the actor: the pending read is cancelled, queued messages are
     /// dropped, and cleanup runs. Use <c>stop</c> to shut down gracefully instead.
     /// </summary>
-    let start (cancellationToken: CancellationToken) (config: ActorConfig<'Msg, 'Model, 'Cmd, 'ExtMsg>) : Actor<'Msg, 'Model, 'Cmd, 'ExtMsg> * IAsyncEnumerable<'ExtMsg> =
+    let start
+        (cancellationToken: CancellationToken)
+        (config: ActorConfig<'Msg, 'Model, 'Cmd, 'ExtMsg>)
+        : Actor<'Msg, 'Model, 'Cmd, 'ExtMsg> * IAsyncEnumerable<'ExtMsg> =
         let shutdownTimeout = config.ShutdownTimeout
 
         // Match Task.WaitAsync's accepted range so an invalid timeout fails here rather than during cleanup.
@@ -467,7 +470,8 @@ module Actor =
               OnCommandFailure = config.OnCommandFailure
               Subscribe = config.Subscribe
               Subscriptions = Dictionary<string, RunningSubscription>()
-              Resync = Channel.CreateBounded<unit>(BoundedChannelOptions(1, FullMode = BoundedChannelFullMode.DropWrite))
+              Resync =
+                Channel.CreateBounded<unit>(BoundedChannelOptions(1, FullMode = BoundedChannelFullMode.DropWrite))
               InitialCommands = initialCommands
               InitialExtMsgs = initialExtMsgs
               Status = config.Status

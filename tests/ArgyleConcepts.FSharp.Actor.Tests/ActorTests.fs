@@ -55,7 +55,8 @@ let collectMessagesUntilTerminal (expectedMessage: string) (stream: IAsyncEnumer
         let messages = ResizeArray<'T>()
         use enumerator = stream.GetAsyncEnumerator()
 
-        let! terminal = Assert.ThrowsAsync<InvalidOperationException>(fun () -> readAll enumerator messages)
+        let! terminal =
+            Assert.ThrowsAsync<InvalidOperationException>(fun () -> readAll enumerator messages)
 
         Assert.Equal(expectedMessage, terminal.Message)
 
@@ -114,8 +115,7 @@ let counterUpdate (msg: CounterMsg) (model: int) : int * CounterCmd list * Count
 let unexpectedCommandFailure (error: exn) : 'Msg =
     raise (InvalidOperationException($"Unexpected command failure: %O{error}", error))
 
-let counterExecute (_ct: CancellationToken) (cmd: CounterCmd) : Task<CounterMsg list> =
-    Task.FromResult []
+let counterExecute (_ct: CancellationToken) (cmd: CounterCmd) : Task<CounterMsg list> = Task.FromResult []
 
 let counterStatus (model: int) : ActorStatus =
     if model = -1 then
@@ -301,8 +301,12 @@ let ``Actor routes the failure of a command that faults after the loop moved on`
     withTimeout defaultTimeout (fun ct ->
         task {
             let failure = InvalidOperationException("Command failed later")
-            let started = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let release = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let started =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let release =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
             let config: ActorConfig<Result<unit, exn>, exn list, unit, exn> =
                 { Init = ([], [], [])
@@ -343,7 +347,9 @@ let ``Actor routes the failure of a command that faults after the loop moved on`
 let ``Actor drops a command cancellation caused by its own shutdown`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let started = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let started =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
             let routed = ResizeArray<exn>()
 
             // The command observes the actor's token, so cancelling the actor cancels the command.
@@ -386,8 +392,12 @@ let ``Actor stream completes when cancelled while a command is executing`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
             use actorCts = new CancellationTokenSource()
-            let executeStarted = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let releaseExecute = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let executeStarted =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let releaseExecute =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
             // Execute ignores the actor token, so cancellation is only seen once the loop resumes.
             let config: ActorConfig<unit, int, unit, unit> =
@@ -545,7 +555,12 @@ let ``Actor stream completes with terminal exception when cleanup cancellation t
                         Task.FromResult [])
                   OnCommandFailure = unexpectedCommandFailure
                   Subscribe = (fun _ -> [])
-                  Status = (fun model -> if model > 0 then ActorStatus.Failed terminalException else ActorStatus.Running)
+                  Status =
+                    (fun model ->
+                        if model > 0 then
+                            ActorStatus.Failed terminalException
+                        else
+                            ActorStatus.Running)
                   ShutdownTimeout = Actor.defaultShutdownTimeout }
 
             let actor, stream = Actor.start ct config
@@ -637,7 +652,12 @@ let ``Actor stream completes without an exception when status is Stopped`` () =
                   Execute = (fun _ _ -> Task.FromResult [])
                   OnCommandFailure = unexpectedCommandFailure
                   Subscribe = (fun _ -> [])
-                  Status = (fun model -> if model < 0 then ActorStatus.Stopped else ActorStatus.Running)
+                  Status =
+                    (fun model ->
+                        if model < 0 then
+                            ActorStatus.Stopped
+                        else
+                            ActorStatus.Running)
                   ShutdownTimeout = Actor.defaultShutdownTimeout }
 
             let actor, stream = Actor.start ct config
@@ -661,8 +681,12 @@ let ``Actor stream completes without an exception when status is Stopped`` () =
 let ``Actor stop processes every message posted before it without cancelling the running command`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let firstStarted = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let releaseFirst = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let firstStarted =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let releaseFirst =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
             let firstToken = ref CancellationToken.None
 
             let config: ActorConfig<int, int, int, int> =
@@ -715,8 +739,11 @@ let ``Actor stop processes every message posted before it without cancelling the
 let ``Actor stop completes cleanly when a running command posts after the mailbox closes`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let started = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let release = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let started =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let release =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
             let config: ActorConfig<int, int, int, int> =
                 { Init = (0, [], [])
@@ -755,9 +782,15 @@ let ``Actor stop completes cleanly when a running command posts after the mailbo
 let ``Actor terminal status does not process messages queued behind it`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let terminalStarted = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let releaseTerminal = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let terminalStatusPostResult = TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously)
+            let terminalStarted =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let releaseTerminal =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let terminalStatusPostResult =
+                TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously)
+
             let mutable postDuringTerminalStatus: (int -> bool) option = None
 
             let config: ActorConfig<int, int, int, int> =
@@ -812,8 +845,12 @@ let ``Actor emits a step's external messages without waiting for its commands`` 
         task {
             // Only the actor loop writes to this, and the test reads it while a command is blocked.
             let executed = ResizeArray<int>()
-            let secondStarted = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let releaseSecond = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let secondStarted =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let releaseSecond =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
             let config: ActorConfig<int, int, int, int> =
                 { Init = (0, [], [])
@@ -866,8 +903,11 @@ let ``Actor emits a step's external messages without waiting for its commands`` 
 let ``Actor keeps processing messages while a command is still running`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let firstStarted = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let releaseFirst = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let firstStarted =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let releaseFirst =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
             // 1 blocks until released and then reports back as 3; every other message is a no-op.
             let config: ActorConfig<int, int list, int, int> =
@@ -956,8 +996,11 @@ let ``Actor enqueues the messages of synchronous commands in command order`` () 
 let ``Actor shutdown waits for an in-flight command up to the timeout`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let started = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let release = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let started =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let release =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
             // Records whether the command or cleanup finished first.
             let order = ResizeArray<string>()
 
@@ -989,12 +1032,10 @@ let ``Actor shutdown waits for an in-flight command up to the timeout`` () =
 
             // Cleanup cannot finish while the command is in flight. An actor that did not track it
             // would complete here instead of waiting to be released.
-            let! finishedFirst = Task.WhenAny(completion, Task.Delay(TimeSpan.FromMilliseconds(250.0), ct))
+            let! finishedFirst =
+                Task.WhenAny(completion, Task.Delay(TimeSpan.FromMilliseconds(250.0), ct))
 
-            Assert.False(
-                completion.IsCompleted,
-                "Cleanup finished while a command was still in flight."
-            )
+            Assert.False(completion.IsCompleted, "Cleanup finished while a command was still in flight.")
 
             Assert.NotSame(completion, finishedFirst)
 
@@ -1041,7 +1082,9 @@ let ``Actor ends with the failure when OnCommandFailure itself throws`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
             let configFailure = InvalidOperationException("OnCommandFailure is broken")
-            let release = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let release =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
             // The command fails asynchronously, so its failure is routed from the observer rather
             // than from the loop, and routing it throws.
@@ -1075,8 +1118,12 @@ let ``Actor ends with the failure when OnCommandFailure itself throws`` () =
 let ``Actor stop and drain waits for commands beyond the shutdown timeout`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let started = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let release = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let started =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let release =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
             let config: ActorConfig<int, int, int, int> =
                 { Init = (0, [], [])
                   Update = (fun msg model -> (model + msg, [ msg ], []))
@@ -1108,8 +1155,11 @@ let ``Actor stop and drain waits for commands beyond the shutdown timeout`` () =
 let ``Actor drops the messages of a command that completes after shutdown`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let started = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let release = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let started =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let release =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
             let config: ActorConfig<int, int list, int, int> =
                 { Init = ([], [], [])
@@ -1548,7 +1598,8 @@ let ``Actor chains the messages its commands return until the model is terminal`
 /// work shutdown has to observe.
 let stopActorWithFaultedTrackedTask (failure: exn) (ct: CancellationToken) : Task =
     task {
-        let tracked = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+        let tracked =
+            TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
         let config: ActorConfig<unit, int, unit, unit> =
             { Init = (0, [], [])
@@ -1583,7 +1634,10 @@ let ``Actor shutdown observes a faulted tracked task`` () =
 
             let handler =
                 EventHandler<UnobservedTaskExceptionEventArgs>(fun _ args ->
-                    if args.Exception.InnerExceptions |> Seq.exists (LanguagePrimitives.PhysicalEquality failure) then
+                    if
+                        args.Exception.InnerExceptions
+                        |> Seq.exists (LanguagePrimitives.PhysicalEquality failure)
+                    then
                         unobserved.Value <- true)
 
             TaskScheduler.UnobservedTaskException.AddHandler handler
@@ -1592,7 +1646,8 @@ let ``Actor shutdown observes a faulted tracked task`` () =
                 // Signal from a continuation so the helper task has completed before the GC runs, and
                 // keep no reference to it so it cannot root the actor's tasks. Its outcome, including
                 // any fault, is copied to `stopped`.
-                let stopped = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+                let stopped =
+                    TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
                 (stopActorWithFaultedTrackedTask failure ct)
                     .ContinueWith(
@@ -1619,7 +1674,9 @@ let ``Actor shutdown observes a faulted tracked task`` () =
 let ``Actor shutdown does not wait beyond the configured shutdown timeout`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let tracked = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let tracked =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
             let neverCompletes = TaskCompletionSource()
 
             // The command never finishes, so only the timeout can end shutdown.
@@ -1676,8 +1733,11 @@ let ``Actor start accepts an infinite shutdown timeout`` () =
 let ``Actor shutdown waits for tracked tasks before completing`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let tracked = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let release = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let tracked =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let release =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
             // The shutdown timeout outlasts the test timeout, so only releasing the tracked task ends the wait.
             let config: ActorConfig<unit, int, unit, unit> =
@@ -1707,7 +1767,9 @@ let ``Actor shutdown waits for tracked tasks before completing`` () =
             // release or the one-minute timeout can complete shutdown, so this window cannot fail
             // spuriously. Without the wait, shutdown would complete well inside it.
             let completion = Actor.completion actor
-            let! first = Task.WhenAny(completion, Task.Delay(TimeSpan.FromMilliseconds(200.0), ct))
+
+            let! first =
+                Task.WhenAny(completion, Task.Delay(TimeSpan.FromMilliseconds(200.0), ct))
 
             Assert.NotSame(completion, first)
 
@@ -1769,8 +1831,12 @@ let ``Actor completion completes successfully after terminal state`` () =
 
 /// A subscription that reports when it starts and when it stops, and posts on demand.
 type private TestSource() =
-    let started = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-    let stopped = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+    let started =
+        TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+    let stopped =
+        TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
     let mutable starts = 0
 
     member _.Started = started.Task
@@ -1870,8 +1936,11 @@ let ``Actor cancels a subscription when the model stops calling for it`` () =
 let ``Actor cancels and awaits its subscriptions at shutdown`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let cancelled = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
-            let releaseSource = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let cancelled =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
+            let releaseSource =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
 
             // The source refuses to finish until the test lets it, so cleanup can only complete
             // if it is genuinely waiting for it.
@@ -1886,8 +1955,7 @@ let ``Actor cancels and awaits its subscriptions at shutdown`` () =
                             Start =
                               fun _ token ->
                                   task {
-                                      use _registration =
-                                          token.Register(fun () -> cancelled.TrySetResult() |> ignore)
+                                      use _registration = token.Register(fun () -> cancelled.TrySetResult() |> ignore)
 
                                       do! releaseSource.Task
                                   } } ])
@@ -1913,7 +1981,9 @@ let ``Actor cancels and awaits its subscriptions at shutdown`` () =
 let ``Actor restarts a retired subscription once the model calls for it again`` () =
     withTimeout defaultTimeout (fun ct ->
         task {
-            let unwind = TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+            let unwind =
+                TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously)
+
             let mutable starts = 0
             let mutable live = 0
             let mutable mostLive = 0

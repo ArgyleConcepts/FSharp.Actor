@@ -112,12 +112,25 @@ task {
 | `Actor.stopAndDrain actor` | Stops the actor and waits for every started command, even past the shutdown timeout. |
 | `Actor.completion actor` | A task that completes when the loop has exited and cleanup has finished. |
 
-## Build and test
+## Pull request validation
+
+[`azure-pipelines.yml`](azure-pipelines.yml) validates GitHub pull requests into `main` through Azure Pipelines in the **ArgyleConceptsLLC** Azure DevOps organization. It does not run on pushes or publish packages. To reproduce it locally, run from the repository root:
 
 ```sh
-dotnet build -c Release
-dotnet test --project tests/ArgyleConcepts.FSharp.Actor.Tests -c Release
+dotnet restore ArgyleConcepts.FSharp.Actor.slnx
+dotnet tool restore
+dotnet build ArgyleConcepts.FSharp.Actor.slnx --configuration Release --no-restore
+dotnet fsi eng/fsharp-analysis/Run.fsx
+dotnet test --solution ArgyleConcepts.FSharp.Actor.slnx --configuration Release --no-build --no-restore
+dotnet fantomas check .
+bash eng/verify-packages.sh
 ```
+
+`eng/verify-packages.sh` packs the library, checks the package metadata, symbols and SourceLink mappings against the current commit, and runs a fresh consumer against the packed package.
+
+## Releasing
+
+`ArgylePackageVersion` in [`Directory.Build.props`](Directory.Build.props) is the package version. [`azure-release.yml`](azure-release.yml) is run manually. By default it validates and retains the package and symbols as the `packages` artifact without publishing. A run on `main` with **Publish verified packages to NuGet.org** enabled pushes that artifact to NuGet.org through the shared `fsharp-minimalapi-nuget` environment and `fsharp-minimalapi-nuget-release` variable group. After publishing, tag the packaged commit with the version and create a GitHub release.
 
 ## License
 

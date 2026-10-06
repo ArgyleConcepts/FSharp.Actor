@@ -1,0 +1,31 @@
+{
+  "ignoreFiles": [
+    "assemblyinfo.*",
+    "obj/",
+    "_content/"
+  ],
+  "failwithWithSingleArgument": { "enabled": true },
+  "raiseWithSingleArgument": { "enabled": true },
+  "nullArgWithSingleArgument": { "enabled": true },
+  "invalidOpWithSingleArgument": { "enabled": true },
+  "invalidArgWithTwoArguments": { "enabled": true },
+  "failwithfWithArgumentsMatchingFormatString": { "enabled": true },
+  "failwithBadUsage": { "enabled": true },
+  "favourReRaise": { "enabled": true },
+  "uselessBinding": { "enabled": true },
+  "usedUnderscorePrefixedElements": { "enabled": true },
+  "unneededRecKeyword": { "enabled": true },
+  "ensureTailCallDiagnosticsInRecursiveFunctions": { "enabled": true },
+  "noAsyncRunSynchronouslyInLibrary": { "enabled": true },
+  "noPartialFunctions": {
+    "enabled": false,
+    "config": {
+      "allowedPartials": [],
+      "additionalPartials": []
+    }
+  },
+  "nestedStatements": {
+    "enabled": true,
+    "config": { "depth": 8 }
+  }
+}

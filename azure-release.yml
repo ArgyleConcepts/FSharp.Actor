@@ -1,0 +1,103 @@
+name: release-$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger: none
+pr: none
+
+parameters:
+  - name: publishPackages
+    displayName: Publish verified packages to NuGet.org
+    type: boolean
+    default: false
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
+
+stages:
+  - stage: Validate
+    jobs:
+      - job: Packages
+        steps:
+          - checkout: self
+            fetchDepth: 0
+          - task: UseDotNet@2
+            inputs:
+              packageType: sdk
+              useGlobalJson: true
+          - script: dotnet restore ArgyleConcepts.FSharp.Actor.slnx
+            displayName: Restore solution
+          - script: dotnet tool restore
+            displayName: Restore tools
+          - script: dotnet build ArgyleConcepts.FSharp.Actor.slnx --configuration Release --no-restore
+            displayName: Build solution
+          - script: dotnet fsi eng/fsharp-analysis/Run.fsx
+            displayName: Analyze F#
+          - script: dotnet test --solution ArgyleConcepts.FSharp.Actor.slnx --configuration Release --no-build --no-restore --minimum-expected-tests 56
+            displayName: Run tests
+          - script: dotnet fantomas check .
+            displayName: Check formatting
+          - script: bash eng/verify-packages.sh
+            displayName: Verify and retain release packages
+            env:
+              VERIFY_PACKAGE_OUTPUT_DIRECTORY: $(Build.ArtifactStagingDirectory)/packages
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: $(Build.ArtifactStagingDirectory)/packages
+              artifact: packages
+
+  # Compile out publishing and its secret group during validation-only runs.
+  - ${{ if eq(parameters.publishPackages, true) }}:
+      - stage: Publish
+        dependsOn: Validate
+        condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        jobs:
+          # Shares the Argyle Concepts NuGet release environment and key with FSharp.MinimalApi.
+          - deployment: NuGet
+            environment: fsharp-minimalapi-nuget
+            variables:
+              - group: fsharp-minimalapi-nuget-release
+            strategy:
+              runOnce:
+                deploy:
+                  steps:
+                    - checkout: none
+                    - download: current
+                      artifact: packages
+                    - task: UseDotNet@2
+                      inputs:
+                        packageType: sdk
+                        version: 10.0.x
+                    - bash: |
+                        set -euo pipefail
+                        if [[ -z "${NUGET_API_KEY:-}" ]]; then
+                          echo "Missing release-only NuGet API key." >&2
+                          exit 1
+                        fi
+                        if [[ "$SOURCE_BRANCH" != refs/heads/main ]]; then
+                          echo "Publishing is restricted to main." >&2
+                          exit 1
+                        fi
+                        shopt -s nullglob
+                        packages=("$PACKAGE_DIRECTORY"/*.nupkg)
+                        if [[ ${#packages[@]} -ne 1 ]]; then
+                          echo "Expected exactly one release package." >&2
+                          exit 1
+                        fi
+                        filename="${packages[0]##*/}"
+                        if [[ ! "$filename" =~ ^ArgyleConcepts\.FSharp\.Actor\.[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?\.nupkg$ ]]; then
+                          echo "Unexpected release package: $filename" >&2
+                          exit 1
+                        fi
+                        dotnet nuget push "${packages[0]}" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+                        # An explicit symbol push also allows retry after a partial publish.
+                        for symbols in "$PACKAGE_DIRECTORY"/*.snupkg; do
+                          dotnet nuget push "$symbols" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+                        done
+                      displayName: Publish verified package and symbols
+                      env:
+                        NUGET_API_KEY: $(NUGET_API_KEY)
+                        PACKAGE_DIRECTORY: $(Pipeline.Workspace)/packages
+                        SOURCE_BRANCH: $(Build.SourceBranch)

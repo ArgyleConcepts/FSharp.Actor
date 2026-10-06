@@ -64,3 +64,7 @@ TestResults/
 .idea/
 *.user
 .DS_Store
+
+# F# analysis restore cache and local results
+/eng/fsharp-analysis/.packages/
+/fsharp-analysis-results/

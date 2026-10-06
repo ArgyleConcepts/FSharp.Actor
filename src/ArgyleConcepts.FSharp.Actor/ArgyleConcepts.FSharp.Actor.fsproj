@@ -3,29 +3,28 @@
     <PropertyGroup>
         <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
         <IsPackable>true</IsPackable>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageId>ArgyleConcepts.FSharp.Actor</PackageId>
-        <Version>1.0.0</Version>
+        <PackageVersion>$(ArgylePackageVersion)</PackageVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Authors>Argyle Concepts</Authors>
         <Company>Argyle Concepts</Company>
         <Description>An Elm-style actor for F#: a single-threaded update loop over a Channel mailbox, with asynchronous commands, model-driven subscriptions, and an async stream of external messages.</Description>
         <PackageTags>fsharp;actor;elm;mvu;channels;task</PackageTags>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
         <PackageProjectUrl>https://github.com/ArgyleConcepts/FSharp.Actor</PackageProjectUrl>
         <RepositoryUrl>https://github.com/ArgyleConcepts/FSharp.Actor</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
     </PropertyGroup>
 
     <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
         <Compile Include="Actor.fs"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="../../README.md" Pack="true" PackagePath="/"/>
     </ItemGroup>
 
     <ItemGroup>

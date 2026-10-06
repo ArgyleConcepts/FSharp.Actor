@@ -1,0 +1,58 @@
+name: pr-validation-$(Date:yyyyMMdd)$(Rev:.r)
+
+# The GitHub service connection supplies the PR event. Publishing belongs to a
+# separate release pipeline.
+trigger: none
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
+
+steps:
+  - checkout: self
+
+  - task: UseDotNet@2
+    displayName: Install .NET SDK from global.json
+    inputs:
+      packageType: sdk
+      useGlobalJson: true
+
+  - script: dotnet --version
+    displayName: Show .NET SDK version
+
+  - script: dotnet restore ArgyleConcepts.FSharp.Actor.slnx
+    displayName: Restore solution
+
+  - script: dotnet tool restore
+    displayName: Restore local tools
+
+  - script: dotnet build ArgyleConcepts.FSharp.Actor.slnx --configuration Release --no-restore
+    displayName: Build solution
+
+  - script: dotnet fsi eng/fsharp-analysis/Run.fsx
+    displayName: Analyze F#
+    env:
+      FSHARP_ANALYSIS_OUTPUT_DIRECTORY: $(Build.ArtifactStagingDirectory)/fsharp-analysis
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish F# analysis results
+    condition: succeededOrFailed()
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)/fsharp-analysis
+      artifact: fsharp-analysis
+
+  - script: dotnet test --solution ArgyleConcepts.FSharp.Actor.slnx --configuration Release --no-build --no-restore --minimum-expected-tests 56
+    displayName: Run tests
+
+  - script: dotnet fantomas check .
+    displayName: Check F# formatting
+
+  - script: bash eng/verify-packages.sh
+    displayName: Pack and consume local NuGet package

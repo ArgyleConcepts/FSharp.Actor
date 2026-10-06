@@ -1,13 +1,21 @@
 <Project>
     <PropertyGroup>
+        <ArgylePackageVersion>1.0.0</ArgylePackageVersion>
+        <ContinuousIntegrationBuild Condition="'$(TF_BUILD)' == 'True'">true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <LangVersion>latestmajor</LangVersion>
-        <WarningLevel>5</WarningLevel>
-        <OtherFlags>$(OtherFlags) --warnon:0052 --warnon:1178 --warnon:3389 --warnon:3390 --warnon:3559 --warnon:3570 --warnon:3579 --warnon:3582 --warnon:3878</OtherFlags>
-        <WarningsAsErrors>$(WarningsAsErrors);FS0052;FS1178;FS3389;FS3390;FS3559;FS3570;FS3579;FS3582;FS3878</WarningsAsErrors>
         <IsPackable>false</IsPackable>
         <NuGetAudit>true</NuGetAudit>
         <NuGetAuditMode>all</NuGetAuditMode>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.fsproj'">
+        <WarningLevel>5</WarningLevel>
+        <OtherFlags>$(OtherFlags) --warnon:0052 --warnon:1178 --warnon:3389 --warnon:3390 --warnon:3559 --warnon:3570 --warnon:3579 --warnon:3582 --warnon:3878</OtherFlags>
+        <WarningsAsErrors>$(WarningsAsErrors);FS0052;FS1178;FS3389;FS3390;FS3559;FS3570;FS3579;FS3582;FS3878</WarningsAsErrors>
     </PropertyGroup>
 </Project>

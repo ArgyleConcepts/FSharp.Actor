@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RestorePackagesPath>$(MSBuildThisFileDirectory).packages</RestorePackagesPath>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+    <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ionide.Analyzers" Version="0.19.0" PrivateAssets="all" />
+    <PackageReference Include="G-Research.FSharp.Analyzers" Version="0.25.0" PrivateAssets="all" />
+    <PackageReference Include="WoofWare.FSharpAnalyzers" Version="0.2.18" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>
