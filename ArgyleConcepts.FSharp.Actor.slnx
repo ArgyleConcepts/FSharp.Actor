@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ArgyleConcepts.FSharp.Actor/ArgyleConcepts.FSharp.Actor.fsproj"/>
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ArgyleConcepts.FSharp.Actor.Tests/ArgyleConcepts.FSharp.Actor.Tests.fsproj"/>
+  </Folder>
+</Solution>

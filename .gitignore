@@ -55,3 +55,12 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Build output and IDE state
+bin/
+obj/
+TestResults/
+.vs/
+.idea/
+*.user
+.DS_Store
