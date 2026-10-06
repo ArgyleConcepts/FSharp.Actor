@@ -1,5 +1,7 @@
 # ArgyleConcepts.FSharp.Actor
 
+[![NuGet](https://img.shields.io/nuget/v/ArgyleConcepts.FSharp.Actor.svg)](https://www.nuget.org/packages/ArgyleConcepts.FSharp.Actor)
+
 An Elm-style (Model–View–Update) actor for F# on .NET, built on `System.Threading.Channels` and `task { }`.
 
 A single loop owns the model and processes one message at a time. `Update` is a pure function from a
@@ -112,26 +114,12 @@ task {
 | `Actor.stopAndDrain actor` | Stops the actor and waits for every started command, even past the shutdown timeout. |
 | `Actor.completion actor` | A task that completes when the loop has exited and cleanup has finished. |
 
-## Pull request validation
+## Contributing and support
 
-[`FSharp.Actor PR Validation`](https://dev.azure.com/ArgyleConceptsLLC/Argyle%20Converge/_build?definitionId=38) uses [`azure-pipelines.yml`](azure-pipelines.yml) to validate GitHub pull requests into `main` through Azure Pipelines in the **ArgyleConceptsLLC** Azure DevOps organization. It does not run on pushes or publish packages. To reproduce it locally, run from the repository root:
+Bug reports, documentation improvements, tests, and feature proposals are welcome. Start with [CONTRIBUTING.md](https://github.com/ArgyleConcepts/FSharp.Actor/blob/main/CONTRIBUTING.md), then open an [issue](https://github.com/ArgyleConcepts/FSharp.Actor/issues) or a pull request against `main`. You do not need access to our internal issue tracker or Azure DevOps organization to contribute.
 
-```sh
-dotnet restore ArgyleConcepts.FSharp.Actor.slnx
-dotnet tool restore
-dotnet build ArgyleConcepts.FSharp.Actor.slnx --configuration Release --no-restore
-dotnet fsi eng/fsharp-analysis/Run.fsx
-dotnet test --solution ArgyleConcepts.FSharp.Actor.slnx --configuration Release --no-build --no-restore
-dotnet fantomas check .
-bash eng/verify-packages.sh
-```
-
-`eng/verify-packages.sh` packs the library, checks the package metadata, symbols and SourceLink mappings against the current commit, and runs a fresh consumer against the packed package.
-
-## Releasing
-
-`ArgylePackageVersion` in [`Directory.Build.props`](Directory.Build.props) is the package version. [`FSharp.Actor Release`](https://dev.azure.com/ArgyleConceptsLLC/Argyle%20Converge/_build?definitionId=39) uses [`azure-release.yml`](azure-release.yml) and is run manually. By default it validates and retains the package and symbols as the `packages` artifact without publishing. A run on `main` with **Publish verified packages to NuGet.org** enabled pushes that artifact to NuGet.org through the shared `fsharp-minimalapi-nuget` environment and `fsharp-minimalapi-nuget-release` variable group. After publishing, tag the packaged commit with the version and create a GitHub release.
+Please follow our [Code of Conduct](https://github.com/ArgyleConcepts/FSharp.Actor/blob/main/CODE_OF_CONDUCT.md). Report vulnerabilities privately using the process in [SECURITY.md](https://github.com/ArgyleConcepts/FSharp.Actor/blob/main/SECURITY.md). Maintainers can find CI and release administration in the [maintainer guide](https://github.com/ArgyleConcepts/FSharp.Actor/blob/main/docs/MAINTAINING.md).
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/ArgyleConcepts/FSharp.Actor/blob/main/LICENSE)

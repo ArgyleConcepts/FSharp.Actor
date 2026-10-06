@@ -1,0 +1,27 @@
+name: Bug report
+description: Report a reproducible problem
+body:
+  - type: markdown
+    attributes:
+      value: "For vulnerabilities, use [private reporting](https://github.com/ArgyleConcepts/FSharp.Actor/security/advisories/new). Remove secrets and personal data from examples."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Expected and actual behavior
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include a small F# example or a public reproduction repository and the steps to run it. For ordering, timing or shutdown problems, say how often it reproduces.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the package version or commit, target framework, operating system, and dotnet --info output.
+    validations:
+      required: true
